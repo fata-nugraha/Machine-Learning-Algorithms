@@ -19,3 +19,13 @@ class Tree:
     
     def add_name(self, name):
         self.branchNames.append(name)
+
+    def export_tree(self, paramSpace):
+        if (self.data):
+            print(paramSpace * ' ' + self.data)
+        
+        space = paramSpace + 1
+
+        for index in range(0, len(self.children)):
+            print(space * ' ' + '---' + self.branchNames[index])
+            self.children[index].export_tree(space + 3)

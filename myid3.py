@@ -2,12 +2,17 @@
 # target_attribute is the attribute whose value is to be predicted by the tree
 # attributes is a list of other attributes that may be tested by the learned decision tree
 
+import pandas as pd
+import numpy as np
+
 from tree_module import *
 import math
 
 def myid3(examples, target_attribute, attributes):
     # If all examples are in one class:
-    if (examples[target_attribute].all()):
+    # print("Examples: ", examples)
+    if (areAllValuesSame(examples[target_attribute])):
+        # print("Masuk")
         return Tree(examples[target_attribute][0], None, None)
 
     if (len(attributes) == 0):
@@ -16,19 +21,26 @@ def myid3(examples, target_attribute, attributes):
         return Tree(data, None, None)
         
     # Use information gain to get best attr:
+    # print("attrs: ", attributes)
     chosenAttribute = getBestAttribute(examples, target_attribute, attributes)
 
     # Get unique values in the attribute
     uniqueValues = examples[chosenAttribute].unique()
 
+    # Assign new attributes
+    filteredAttributes = attributes
+    filteredAttributes.remove(chosenAttribute)
+
     # Children of the tree
     nodes = []
     branchNames = []
 
+    # print("uniquevalues: ", uniqueValues)
     for value in uniqueValues:
+        # print("value: ", value)
         # Filter the example
         filterParam = examples[chosenAttribute] == value
-        filteredExamples = examples[filterParam]
+        filteredExamples = examples[filterParam].reset_index()
 
         # If examples empty
         if (filteredExamples.empty):
@@ -37,7 +49,13 @@ def myid3(examples, target_attribute, attributes):
             return Tree(data, None, None)
         else:
             # Recursion
-            node = myid3(filteredExamples, target_attribute, attributes.remove(attr))
+        
+            
+            # print("filter: ", filteredAttributes)
+            # print("chosen: ", chosenAttribute)
+
+            node = myid3(filteredExamples, target_attribute, filteredAttributes)
+
             nodes.append(node)
             branchNames.append(value)
 
@@ -69,7 +87,7 @@ def getInformationGain(examples, target_attribute, attribute, classEntropy):
 
     for index in range (0, len(classFreqRatio)):
         value = classFreqRatio.keys()[index]
-        gain += classFreqRatio[index] * getAttributeEntropy(examples, target_attribute, attr, value)
+        gain += classFreqRatio[index] * getAttributeEntropy(examples, target_attribute, attribute, value)
     
     gain = classEntropy - gain
     return gain
@@ -77,7 +95,7 @@ def getInformationGain(examples, target_attribute, attribute, classEntropy):
 def getAttributeEntropy(examples, target_attribute, attribute, value):
     # Filter examples that only has the value of the attribute
     filterParam = examples[attribute] == value
-    filteredExamples = examples[filterParam]
+    filteredExamples = examples[filterParam].reset_index()
 
     return getEntropy(filteredExamples, target_attribute)
 
@@ -90,4 +108,18 @@ def getEntropy(examples, target_attribute):
         entropy += -1 * freqRatio * math.log2(freqRatio)
 
     return entropy
-    
+
+def areAllValuesSame (list):
+    return all(elem == list[0] for elem in list)
+
+# Read play-tennis dataset
+df = pd.read_csv('datasets/play_tennis.csv')
+
+# Then drop df['day']
+df = df.drop('day', axis=1)
+
+# Attributes for tree generation purposes
+attributes = ["outlook", "temp", "humidity", "wind"]
+
+tree = myid3(df, 'play', attributes)
+tree.export_tree(0)
