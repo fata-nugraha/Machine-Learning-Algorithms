@@ -10,9 +10,7 @@ import math
 
 def myid3(examples, target_attribute, attributes):
     # If all examples are in one class:
-    # print("Examples: ", examples)
     if (areAllValuesSame(examples[target_attribute])):
-        # print("Masuk")
         return Tree(examples[target_attribute][0], None, None)
 
     if (len(attributes) == 0):
@@ -21,7 +19,6 @@ def myid3(examples, target_attribute, attributes):
         return Tree(data, None, None)
         
     # Use information gain to get best attr:
-    # print("attrs: ", attributes)
     chosenAttribute = getBestAttribute(examples, target_attribute, attributes)
 
     # Get unique values in the attribute
@@ -34,10 +31,8 @@ def myid3(examples, target_attribute, attributes):
     # Children of the tree
     nodes = []
     branchNames = []
-
-    # print("uniquevalues: ", uniqueValues)
+    
     for value in uniqueValues:
-        # print("value: ", value)
         # Filter the example
         filterParam = examples[chosenAttribute] == value
         filteredExamples = examples[filterParam].reset_index()
@@ -49,11 +44,6 @@ def myid3(examples, target_attribute, attributes):
             return Tree(data, None, None)
         else:
             # Recursion
-        
-            
-            # print("filter: ", filteredAttributes)
-            # print("chosen: ", chosenAttribute)
-
             node = myid3(filteredExamples, target_attribute, filteredAttributes)
 
             nodes.append(node)
@@ -84,10 +74,9 @@ def getInformationGain(examples, target_attribute, attribute, classEntropy):
     classFreqRatio = examples[attribute].value_counts(normalize=True)
     # For each frequency of the class, find the gain:
     gain = 0
-
     for index in range (0, len(classFreqRatio)):
         value = classFreqRatio.keys()[index]
-        gain += classFreqRatio[index] * getAttributeEntropy(examples, target_attribute, attribute, value)
+        gain += classFreqRatio[value] * getAttributeEntropy(examples, target_attribute, attribute, value)
     
     gain = classEntropy - gain
     return gain
@@ -113,13 +102,22 @@ def areAllValuesSame (list):
     return all(elem == list[0] for elem in list)
 
 # Read play-tennis dataset
-df = pd.read_csv('datasets/play_tennis.csv')
+# df = pd.read_csv('datasets/play_tennis.csv')
 
-# Then drop df['day']
-df = df.drop('day', axis=1)
+# # Then drop df['day']
+# df = df.drop('day', axis=1)
 
-# Attributes for tree generation purposes
-attributes = ["outlook", "temp", "humidity", "wind"]
+# # Attributes for tree generation purposes
+# attributes = ["outlook", "temp", "humidity", "wind"]
 
-tree = myid3(df, 'play', attributes)
+# tree = myid3(df, 'play', attributes)
+# tree.export_tree(0)
+
+df = pd.read_csv('datasets/iris.csv', sep=',')
+print(df.head())
+
+attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+target = 'species'
+
+tree = myid3(df, target, attributes)
 tree.export_tree(0)

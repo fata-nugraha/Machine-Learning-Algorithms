@@ -22,10 +22,13 @@ class Tree:
 
     def export_tree(self, paramSpace):
         if (self.data):
-            print(paramSpace * ' ' + self.data)
+            if (len(self.children) > 0):
+                print(paramSpace * ' ' + self.data)
+            else:
+                print(paramSpace * ' ' + 'class: ' + self.data)
         
         space = paramSpace + 1
 
         for index in range(0, len(self.children)):
-            print(space * ' ' + '---' + self.branchNames[index])
+            print(space * ' ' + '---' + str(self.branchNames[index]))
             self.children[index].export_tree(space + 3)
