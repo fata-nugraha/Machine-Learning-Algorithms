@@ -1,18 +1,19 @@
 import math
-import pdb
+# import pdb
 class myc45:
 
 	"""Creates a decision tree with C4.5 algorithm"""
 	def __init__(self, pathToData,pathToNames):
 		self.filePathToData = pathToData
 		self.filePathToNames = pathToNames
-		self.data = []
-		self.classes = []
+		self.data = [] #stores training example
+		self.classes = [] 
 		self.numAttributes = -1 
 		self.attrValues = {}
 		self.attributes = []
 		self.tree = None
 
+	# Parse csv data
 	def fetchData(self):
 		with open(self.filePathToNames, "r") as file:
 			classes = file.readline()
@@ -29,17 +30,18 @@ class myc45:
 				row = [x.strip() for x in line.split(",")]
 				if row != [] or row != [""]:
 					self.data.append(row)
-		print(self.attributes)
-		print("data..........................")
-		print(self.data)
+		# print(self.attributes)
+		# print("data..........................")
+		# print(self.data)
 
+	# parse 
 	def preprocessData(self):
 		for index,row in enumerate(self.data):
 			for attr_index in range(self.numAttributes):
 				if(not self.isAttrDiscrete(self.attributes[attr_index])):
 					self.data[index][attr_index] = float(self.data[index][attr_index])
-		print("data after preprocess........................")
-		print(self.data)
+		# print("data after preprocess........................")
+		# print(self.data)
 
 	def printTree(self):
 		self.printNode(self.tree)
@@ -83,7 +85,7 @@ class myc45:
 	def recursiveGenerateTree(self, curData, curAttributes):
 		# print("curData")
 		# print(curData)
-		allSame = self.allSameClass(curData)
+		allSame = self.areAllValuesSame(curData)
 
 		if len(curData) == 0:
 			# print("len curData = 0")
@@ -129,7 +131,7 @@ class myc45:
 		# print("Freq" + str(freq))
 		return self.classes[maxInd]
 
-	def allSameClass(self, data):
+	def areAllValuesSame(self, data):
 		# return all(row[-1] == data[0][-1] for row in data)
 		for row in data:
 			if row[-1] != data[0][-1]:
@@ -152,8 +154,8 @@ class myc45:
 		best_threshold = None
 		for attribute in curAttributes:
 			indexOfAttribute = self.attributes.index(attribute)
-			print("attributes")
-			print(self.attributes)
+			# print("attributes")
+			# print(self.attributes)
 			if self.isAttrDiscrete(attribute):
 				#split curData into n-subsets, where n is the number of 
 				#different values of attribute i. Choose the attribute with
@@ -171,7 +173,7 @@ class myc45:
 							if i == valuesForAttribute[index]:
 								subsets[index].append(row)
 								break
-				e = self.gain(curData, subsets)
+				e = self.getInformationGain(curData, subsets)
 				if e > maxEnt:
 					maxEnt = e
 					splitted = subsets
@@ -192,7 +194,7 @@ class myc45:
 								greater.append(row)
 							else:
 								less.append(row)
-						e = self.gain(curData, [less, greater])
+						e = self.getInformationGain(curData, [less, greater])
 						if e >= maxEnt:
 							splitted = [less, greater]
 							maxEnt = e
@@ -200,7 +202,7 @@ class myc45:
 							best_threshold = threshold
 		return (best_attribute,best_threshold,splitted)
 
-	def gain(self,unionSet, subsets):
+	def getInformationGain(self,unionSet, subsets):
 		# print("unionSet")
 		# print(unionSet)
 		# print("subsets")
@@ -220,6 +222,8 @@ class myc45:
 		return totalGain
 
 	def entropy(self, dataSet):
+		# print("Dataset....")
+		# print(dataSet)
 		S = len(dataSet)
 		if S == 0:
 			return 0
@@ -246,8 +250,8 @@ class Node:
 		self.isLeaf = isLeaf
 		self.children = []
 
-c1 = myc45("datasets/iris/iris.data", "datasets/iris/iris.names")
-# c1 = myc45("../data/play_tennis_data.data", "../data/play_tennis_names.names")
+# c1 = myc45("datasets/iris/iris.data", "datasets/iris/iris.names")
+c1 = myc45("datasets/play_tennis_data.data", "datasets/play_tennis_names.names")
 c1.fetchData()
 c1.preprocessData()
 c1.generateTree()
