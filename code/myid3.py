@@ -98,8 +98,8 @@ class myID3:
         classFreqRatios = examples[target_attribute].value_counts(normalize=True)
 
         entropy = 0
-        for classfreqRatio in classFreqRatios:
-            entropy += -classfreqRatio * math.log2(classfreqRatio)
+        for classFreqRatio in classFreqRatios:
+            entropy -= classFreqRatio * math.log2(classFreqRatio)
 
         return entropy
 

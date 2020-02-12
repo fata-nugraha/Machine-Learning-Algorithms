@@ -22,6 +22,27 @@ df = pd.read_csv('../datasets/iris.csv', sep=',')
 
 attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 target = 'species'
+def sorter(stuff):
+	return stuff[0]
+newlist = list()
+a = list()
+b = list()
+for data in df['sepal_length']:
+	a.append(data)
+for data in df['species']:
+	b.append(data)
+for i in range(len(a)):
+	newlist.append((a[i], b[i]))
+newlist.sort(key = sorter)
+for data in newlist:
+	print(data)
+exit()
+temp = newlist[0][1]
+for i in range(len(newlist)):
+	if newlist[i][1] != temp:
+		print(newlist[i-1], newlist[i])
+		temp = newlist[i][1]
+exit()
 
 id3 = myID3(df, target, attributes)
 tree = id3.tree_
