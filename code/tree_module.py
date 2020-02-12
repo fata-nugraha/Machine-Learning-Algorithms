@@ -1,24 +1,22 @@
 # https://stackoverflow.com/questions/2358045/how-can-i-implement-a-tree-in-python with some modifications
 class Tree:
-    def __init__(self, data, children=None, branchNames=None):
+    def __init__(self, data, names=None, children=None):
         self.data = data
-        self.children = []
-        self.branchNames = []
+        self.children = [] #array of tree
+        self.names = [] #array of tree
 
-        if children is not None:
+        if children:
             for child in children:
                 self.add_child(child)
-        
-        if branchNames is not None:
-            for name in branchNames:
+        if names:
+            for name in names:
                 self.add_name(name)
+        
+    def add_child(self, tree):
+        self.children.append(tree)
 
-    def add_child(self, node):
-        # assert isinstance(node, Tree)
-        self.children.append(node)
-    
     def add_name(self, name):
-        self.branchNames.append(name)
+        self.names.append(name)
 
     def export_tree(self, paramSpace=0):
         if (self.data):
@@ -27,8 +25,8 @@ class Tree:
             else:
                 print(paramSpace * ' ' + 'class: ' + self.data)
         
-        space = paramSpace + 2
+        space = paramSpace + 1
 
         for index in range(0, len(self.children)):
-            print(space * ' ' + '---' + str(self.branchNames[index]))
-            self.children[index].export_tree(space + 4)
+            print(space * ' ' + '---' + str(self.names[index]))
+            self.children[index].export_tree(space + 2)
