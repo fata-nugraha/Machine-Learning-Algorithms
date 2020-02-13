@@ -1,9 +1,20 @@
 from collections import Counter
+from sklearn.model_selection import train_test_split
 from myID3 import *
 
 import numpy as np
 
 class myC45(myID3):
+
+    def thisIsHowToPrune():
+        df = pd.read_csv('../datasets/play_tennis.csv')
+        attributes = ["outlook", "temp", "humidity", "wind"]
+        target = 'play'
+        x = df.drop(target,axis=1)
+        y = df[target]
+        x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2)
+        print(x_train, x_test, y_train, y_test)
+
 
     def __init__(self, examples, target_attribute, attributes):
         self.contDictionary = {}
@@ -47,7 +58,7 @@ class myC45(myID3):
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
     
-    def missingValues(df):
+    def handleMissingValues(df):
         for data in df:
             df[data] = df[data].fillna(df[data].mode()[0])
         return df
@@ -102,3 +113,5 @@ class myC45(myID3):
 
     #Preorder Traversal, getting rule each time it reaches a leaf
     # def parseTreeFromNode(node):
+
+myC45.thisIsHowToPrune()

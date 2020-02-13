@@ -30,3 +30,18 @@ class Tree:
         for index in range(0, len(self.children)):
             print(space * ' ' + '---' + str(self.names[index]))
             self.children[index].export_tree(space + 2)
+
+    def getRules(self):
+        if (len(self.children)<=0):
+            rule = dict()
+            rule['class'] = self.data
+            return [rule]
+        count = 0
+        rules = []
+        for index in range(len(self.children)):
+            temp = self.children[index].getRules()
+            for i in range(len(temp)):
+                rules.append(temp[i])
+                rules[count][self.data] = self.names[index]
+                count+=1
+        return rules

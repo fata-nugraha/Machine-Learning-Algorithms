@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import copy
 from tree_module import *
 import math
 
@@ -30,7 +30,7 @@ class myID3:
 
         # Assign new attributes
         # all attributes without the best attribute
-        filteredAttributes = attributes
+        filteredAttributes = copy.copy(attributes)
         filteredAttributes.remove(bestAttribute)
 
         # Create tree
@@ -38,7 +38,7 @@ class myID3:
 
         for value in uniqueValues:
             # Filter the example (example::where("attribute", bestAttribute)->where(target==value))
-            filteredExamples = examples[examples[bestAttribute] == value].reset_index()
+            filteredExamples = examples[examples[bestAttribute] == value].reset_index(drop=True)
 
             # If filteredExamples empty
             if (filteredExamples.empty):
@@ -88,7 +88,7 @@ class myID3:
     def getAttributeEntropy(self, examples, target_attribute, attribute, value):
         # Filter examples that only has the value of the attribute
         filterParam = examples[attribute] == value
-        filteredExamples = examples[filterParam].reset_index()
+        filteredExamples = examples[filterParam].reset_index(drop=True)
 
         return self.getEntropy(filteredExamples, target_attribute)
 
@@ -99,12 +99,14 @@ class myID3:
 
         entropy = 0
         for classFreqRatio in classFreqRatios:
-            entropy -= classFreqRatio * log(classFreqRatio)
+            entropy -= classFreqRatio * self.log(classFreqRatio)
 
         return entropy
 
     def areAllValuesSame (self, data):
-        return all(elem == data[0] for elem in data)
+        copy = data
+        copy = copy.reset_index(drop=True)
+        return all(elem == copy[0] for elem in copy)
 
     def log(self, x):
         if x == 0:
