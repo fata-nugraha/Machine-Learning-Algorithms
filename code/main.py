@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 from tree_module import *
-from myID3 import *
+from myid3 import *
 import math
 
 pd.options.mode.chained_assignment = None
@@ -51,17 +51,24 @@ testcopy = test
 testcopy = testcopy.reset_index(drop=True)
 for r in range(len(rules)):
 	accuracy = 0
+	checker = 0
 	for i in range(len(testcopy)):
 		check = True
+		output = False
 		for attribute in attributes:
 			try:
 				check = testcopy.iloc[i][attribute] == rules[r][attribute] and check
 			except Exception as e:
 				pass
-		output = not (testcopy.iloc[i][target] != rules[r]['class'] and check)
+		if (check):
+			output = not (testcopy.iloc[i][target] != rules[r]['class'])
+			checker +=1
 		if (output):
 			accuracy += 1
-	rules[r]['accuracy'] = accuracy/len(testcopy)
+	if (checker>0):
+		rules[r]['accuracy'] = accuracy/checker
+	else:
+		rules[r]['accuracy'] = 0
 sorted(rules, key = lambda i: i['accuracy'], reverse = True)
 for rule in rules:
 	print(rule)
