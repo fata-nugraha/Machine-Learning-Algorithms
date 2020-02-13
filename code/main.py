@@ -54,6 +54,7 @@ for r in range(len(rules)):
 	checker = 0
 	for i in range(len(testcopy)):
 		check = True
+		output = False
 		for attribute in attributes:
 			try:
 				check = testcopy.iloc[i][attribute] == rules[r][attribute] and check
@@ -64,7 +65,10 @@ for r in range(len(rules)):
 			checker +=1
 		if (output):
 			accuracy += 1
-	rules[r]['accuracy'] = accuracy/checker
+	if (checker>0):
+		rules[r]['accuracy'] = accuracy/checker
+	else:
+		rules[r]['accuracy'] = 0
 sorted(rules, key = lambda i: i['accuracy'], reverse = True)
 for rule in rules:
 	print(rule)
