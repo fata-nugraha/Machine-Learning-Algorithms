@@ -20,7 +20,6 @@ class myC45(myID3):
         for attribute in attributes:
             if (handledExamples[attribute].dtype == np.float64 or handledExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
-        print(continuous_attributes)
         
         bestTempExamples = self.splitAttributes(handledExamples, target_attribute, continuous_attributes)
 
