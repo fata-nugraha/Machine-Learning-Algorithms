@@ -23,13 +23,6 @@ target = 'play'
 # attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 # target = 'species'
 
-print(df)
-for data in df:
-	df[data] = df[data].fillna(df[data].mode()[0])
-print(df)
-exit()
-
-
 id3 = myID3(df, target, attributes)
 tree = id3.tree_
 tree.export_tree()

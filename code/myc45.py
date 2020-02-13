@@ -1,5 +1,5 @@
 from collections import Counter
-from myid3 import *
+from myID3 import *
 
 import numpy as np
 
@@ -46,25 +46,11 @@ class myC45(myID3):
             value = classFreqRatios.keys()[index]
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
+    
     def missingValues(df):
         for data in df:
             df[data] = df[data].fillna(df[data].mode()[0])
         return df
-    
-    def handleMissingValues(hollowArray):
-        # counter = Counter(hollowArray)
-        # maxval = 0
-        # maxkey = None
-        # for key in counter:
-        #     if (counter[key] > maxval):
-        #         maxval = counter[key]
-        #         maxkey = key
-        # for i in range(0, len(hollowArray)):
-        #     if hollowArray[i] == None:
-        #         hollowArray[i] = maxkey
-        # print(hollowArray)
-
-
 
     #splitAttributes for continuous variables
     # idea:
@@ -116,6 +102,3 @@ class myC45(myID3):
 
     #Preorder Traversal, getting rule each time it reaches a leaf
     # def parseTreeFromNode(node):
-
-
-myC45.missingValues([1, 2, 3, None, 5, 6, 8, None, 6, 6, 6])
