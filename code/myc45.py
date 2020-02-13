@@ -1,6 +1,8 @@
 from collections import Counter
 from myid3 import *
 
+import copy
+
 import numpy as np
 
 class myC45(myID3):
@@ -26,7 +28,7 @@ class myC45(myID3):
             if (correctExamples[attribute].dtype == np.float64 or correctExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
         
-        self.getThreshold(correctExamples, target_attribute, continuous_attributes)
+        self.splitAttributes(correctExamples, target_attribute, continuous_attributes)
                 
     def gainRatio(self, examples, target_attribute, attribute, classEntropy):
         gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
@@ -48,18 +50,17 @@ class myC45(myID3):
 
     def changeContinuousAttributeValues(self, examples, attribute, thresholdIndex):
         tempExamples = examples
-        changedAttributes = []
-        if thresholdIndex == len(examples[attribute])-1 :
-            tempExamples[attribute][thresholdIndex] = " <= " + str(tempExamples[attribute][thresholdIndex]+0.5) 
-            changedAttributes.append(" <= " + str(tempExamples[attribute][thresholdIndex]+0.5))
+        if (thresholdIndex == len(examples[attribute])-1) :
+            newValue = tempExamples[attribute][thresholdIndex]+0.5
+            tempExamples[attribute][thresholdIndex] = ' <= ' + str(newValue)
         else:
-            for index in range(0, len(examples[attribute])):
+            for index in range(0, len(examples[attribute])-1):
                 if (index <= thresholdIndex): 
-                    tempExamples[attribute][index] = " <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
-                    changedAttributes.append(" <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
+                    tempExamples[attribute][index] = ' <= ' + str(newValue)
                 else:
-                    tempExamples[attribute][index] = " > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
-                    changedAttributes.append(" > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
+                    tempExamples[attribute][index] = ' > ' + str(newValue)
         return tempExamples
 
     #splitAttributes for continuous variables

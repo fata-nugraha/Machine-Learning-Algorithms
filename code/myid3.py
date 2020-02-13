@@ -54,7 +54,6 @@ class myID3:
                 self.tree_.add_name(value)
 
         
-
     def getBestAttribute(self, examples, target_attribute, attributes):
         # Find the entropy of examples
         classEntropy = self.getEntropy(examples, target_attribute)
