@@ -99,9 +99,15 @@ class myID3:
 
         entropy = 0
         for classFreqRatio in classFreqRatios:
-            entropy -= classFreqRatio * math.log2(classFreqRatio)
+            entropy -= classFreqRatio * log(classFreqRatio)
 
         return entropy
 
     def areAllValuesSame (self, data):
         return all(elem == data[0] for elem in data)
+
+    def log(self, x):
+        if x == 0:
+            return 0
+        else:
+            return math.log(x,2)

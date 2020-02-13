@@ -20,21 +20,8 @@ class myC45(myID3):
             value = classFreqRatios.keys()[index]
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
-    
 
-    def missingValues(hollowArray):
-        counter = Counter(hollowArray)
-        maxval = 0
-        maxkey = None
-        for key in counter:
-            if (counter[key] > maxval):
-                maxval = counter[key]
-                maxkey = key
-        for i in range(0, len(hollowArray)):
-            if hollowArray[i] == None:
-                hollowArray[i] = maxkey
-        print(hollowArray)
-        
-
-
-myC45.missingValues([1, 2, 3, None, 5, 6, 8, 6, 6, 6, 6])
+    def missingValues(df):
+        for data in df:
+            df[data] = df[data].fillna(df[data].mode()[0])
+        return df

@@ -30,3 +30,7 @@ class Tree:
         for index in range(0, len(self.children)):
             print(space * ' ' + '---' + str(self.names[index]))
             self.children[index].export_tree(space + 2)
+
+    def prune(self):
+        self.data = "yes"
+        self.children = []
