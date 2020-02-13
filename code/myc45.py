@@ -1,10 +1,38 @@
 from collections import Counter
 from myid3 import *
 
+import numpy as np
+
 class myC45(myID3):
 
-    def getThreshold(self, examples, target_attribute, continuous_attribute):
-        pass
+    def __init__(self, examples, target_attribute, attributes):
+        self.contDictionary = {}
+        # Handle missing values first
+        correctExamples = self.handleMissingValues(examples)
+
+        continuous_attributes = []
+        # Classify continuous and discrete values
+        for attribute in attributes:
+            if (correctExamples[attribute].dtype == np.float64 or correctExamples[attribute].dtype == np.int64):
+                continuous_attributes.append(attribute)
+        
+        self.getThreshold(self, correctExamples, target_attribute, continuous_attributes)
+
+
+    def getThreshold(self, examples, target_attribute, continuous_attributes):
+        for attribute in continuous_attributes:
+            tresholdArr = []
+            sortedExamples = examples.sort_values(by=attribute)
+            
+            # Get first value of target_attributes
+            target_value = sortedExamples[target_attributes][0]
+
+            for index in range (0, len(sortedExamples[target_value])):
+                if (sortedExamples[target_value][0] != target_value):
+                    tresholdArr.append(index)
+                    
+            tresholdArr.append(len(sortedExamples[target_value]) - 1)
+                
 
     def gainRatio(self, examples, target_attribute, attribute, classEntropy):
         gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
@@ -19,18 +47,20 @@ class myC45(myID3):
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
     
-    def missingValues(hollowArray):
-        counter = Counter(hollowArray)
-        maxval = 0
-        maxkey = None
-        for key in counter:
-            if (counter[key] > maxval):
-                maxval = counter[key]
-                maxkey = key
-        for i in range(0, len(hollowArray)):
-            if hollowArray[i] == None:
-                hollowArray[i] = maxkey
-        print(hollowArray)
+    def handleMissingValues(hollowArray):
+        # counter = Counter(hollowArray)
+        # maxval = 0
+        # maxkey = None
+        # for key in counter:
+        #     if (counter[key] > maxval):
+        #         maxval = counter[key]
+        #         maxkey = key
+        # for i in range(0, len(hollowArray)):
+        #     if hollowArray[i] == None:
+        #         hollowArray[i] = maxkey
+        # print(hollowArray)
+
+
 
     #splitAttributes for continuous variables
     # idea:
@@ -81,7 +111,7 @@ class myC45(myID3):
     #    sequence when classifying subsequent instances. 
 
     #Preorder Traversal, getting rule each time it reaches a leaf
-    def parseTreeFromNode(node):
+    # def parseTreeFromNode(node):
 
 
-myC45.missingValues([1, 2, 3, None, 5, 6, 8, 6, 6, 6, 6])
+myC45.missingValues([1, 2, 3, None, 5, 6, 8, None, 6, 6, 6])

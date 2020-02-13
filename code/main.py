@@ -7,7 +7,7 @@ import numpy as np
 
 
 from tree_module import *
-from myID3 import *
+from myid3 import *
 import math
 
 
