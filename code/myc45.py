@@ -47,7 +47,6 @@ class myC45(myID3):
             #print tree awal
             # print(self.accuracy(tree, test, target_attribute, continuous_attributes))
 
-    ## pruning
     #separate the trained data and the test data
     def separateTrainedData(self, examples, target):
         x = examples.drop(target,axis=1)
@@ -97,21 +96,19 @@ class myC45(myID3):
             if self.accuracy(copytree, test, target_attribute, attributes) > self.accuracy(tree, test, target_attribute, attributes):
                 result.append(copy.deepcopy(copytree))
         return result
-
-    ##
                 
-    # def gainRatio(self, examples, target_attribute, attribute, classEntropy):
-    #     gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
-    #     splitInformation = self.getSplitInformation(examples, target_attribute, attribute)
-    #     return gain/splitInformation
+    def gainRatio(self, examples, target_attribute, attribute, classEntropy):
+        gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
+        splitInformation = self.getSplitInformation(examples, target_attribute, attribute)
+        return gain/splitInformation
 
-    # def getSplitInformation(self, examples, target_attribute, attribute):
-    #     classFreqRatios = examples[attribute].value_counts(normalize=True)
-    #     splitInformation = 0
-    #     for index in range (0, len(classFreqRatios)):
-    #         value = classFreqRatios.keys()[index]
-    #         splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
-    #     return splitInformation
+    def getSplitInformation(self, examples, target_attribute, attribute):
+        classFreqRatios = examples[attribute].value_counts(normalize=True)
+        splitInformation = 0
+        for index in range (0, len(classFreqRatios)):
+            value = classFreqRatios.keys()[index]
+            splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
+        return splitInformation
     
     def handleMissingValues(self, df):
         for data in df:
@@ -125,11 +122,6 @@ class myC45(myID3):
         return tempExamples
 
     #splitAttributes for continuous variables
-    # idea:
-    ## 1. For all attributes:
-    ## 2. sort the data according to the column.
-    ## 3. Then try all possible adjacent pairs. 
-    ## 4. Choose the threshold that yields maximum gain
     def splitAttributes(self, examples, target_attribute, attributes):
         bestTempExamples = examples
         #For all attributes, keeping its index
@@ -149,15 +141,3 @@ class myC45(myID3):
                         maxGain = gain
                         bestTempExamples = copy.copy(tempExamples)
         return bestTempExamples
-
-    # 1. Infer the decision tree from the training set, growing the tree until the training 
-    #    data is fit as well as possible and allowing overfitting to occur. 
-    # 2. Convert the learned tree into an equivalent set of rules by creating one rule
-    #    for each path from the root node to a leaf node. 
-    # 3. Prune (generalize) each rule by removing any preconditions that result in
-    #    improving its estimated accuracy
-    # 4. Sort the pruned rules by their estimated accuracy, and consider them in this
-    #    sequence when classifying subsequent instances. 
-
-    #Preorder Traversal, getting rule each time it reaches a leaf
-    # def parseTreeFromNode(node):
