@@ -56,8 +56,8 @@ class myC45(myID3):
                             greater.append(sortedExamples.values[j][indexOfAttribute])
                         else:
                             less.append(sortedExamples.values[j][indexOfAttribute])
-                        # e = self.getInformationGain(currentAvailableExamples, [less, greater])
-                        e = self.getInformationGain(examples=[less,greater], target_attribute=attributes, attribute=attributes[indexOfAttribute],  classEntropy=getEntropy(examples,attributes[indexOfAttribute]))
+                        # Get information gain with unionset of current examples and subsets=[less,greater]
+                        e = self.getInformationGain(examples=[less,greater], target_attribute=attributes, attribute=attributes[indexOfAttribute],  classEntropy=self.getEntropy(examples,attributes[indexOfAttribute]))
                         if e >= maxEnt:
                             splitted = [less, greater]
                             maxEnt = e
