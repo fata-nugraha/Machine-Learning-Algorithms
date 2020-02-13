@@ -1,5 +1,5 @@
 from collections import Counter
-from myID3 import *
+from myid3 import *
 
 import numpy as np
 
@@ -16,24 +16,8 @@ class myC45(myID3):
             if (correctExamples[attribute].dtype == np.float64 or correctExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
         
-        self.getThreshold(self, correctExamples, target_attribute, continuous_attributes)
-
-
-    def getThreshold(self, examples, target_attribute, continuous_attributes):
-        for attribute in continuous_attributes:
-            tresholdArr = []
-            sortedExamples = examples.sort_values(by=attribute)
-            
-            # Get first value of target_attributes
-            target_value = sortedExamples[target_attributes][0]
-
-            for index in range (0, len(sortedExamples[target_value])):
-                if (sortedExamples[target_value][0] != target_value):
-                    tresholdArr.append(index)
-
-            tresholdArr.append(len(sortedExamples[target_value]) - 1)
+        self.getThreshold(correctExamples, target_attribute, continuous_attributes)
                 
-
     def gainRatio(self, examples, target_attribute, attribute, classEntropy):
         gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
         splitInformation = self.getSplitInformation(examples, target_attribute, attribute)
@@ -47,49 +31,56 @@ class myC45(myID3):
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
     
-    def missingValues(df):
+    def handleMissingValues(self, df):
         for data in df:
             df[data] = df[data].fillna(df[data].mode()[0])
         return df
+
+    def changeContinuousAttributeValues(self, examples, attribute, thresholdIndex):
+        tempExamples = examples
+        changedAttributes = []
+        if thresholdIndex == len(examples[attribute])-1 :
+            tempExamples[attribute][thresholdIndex] = " <= " + str(tempExamples[attribute][thresholdIndex]+0.5) 
+            changedAttributes.append(" <= " + str(tempExamples[attribute][thresholdIndex]+0.5))
+        else:
+            for index in range(0, len(examples[attribute])):
+                if (index <= thresholdIndex): 
+                    tempExamples[attribute][index] = " <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
+                    changedAttributes.append(" <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+                else:
+                    tempExamples[attribute][index] = " > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
+                    changedAttributes.append(" > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+        return tempExamples
 
     #splitAttributes for continuous variables
     # idea:
     ## 1. For all attributes:
     ## 2. sort the data according to the column.
     ## 3. Then try all possible adjacent pairs. 
-    ## 4. Choose the attribute that yields maximum gain
+    ## 4. Choose the threshold that yields maximum gain
     def splitAttributes(self, examples, target_attribute, attributes):
-        splitted = []
-        maxEnt = -1*float("inf")
-        bestAttribute = -1
+        maxGain = -1*float("inf")
         #For all attributes, keeping its index
-        for indexOfAttribute in range(0, len(attributes)):
+        for attribute in attributes:
             #Sort data according to the column
-            sortedExamples = examples.sort_values(attributes[indexOfAttribute],inplace=True)
+            sortedExamples = df.sort_values(attribute)
+            # print(sortedExamples)
             #For all the example
-            for j in range(0, len(sortedExamples) - 1):
-                #Try all possible adjacent pairs, choose the attribute that yields maximum gain
-                if sortedExamples.values[j][indexOfAttribute] != sortedExamples.values[j+1][indexOfAttribute]:
-                    threshold = sortedExamples.values[j][indexOfAttribute] + sortedExamples.values[j+1][indexOfAttribute]/2
-                    less = []
-                    greater = []
-                    for j in range(0, len(sortedExamples)):
-                        if(sortedExamples.values[j][indexOfAttribute] > threshold):
-                            greater.append(sortedExamples.values[j][indexOfAttribute])
-                        else:
-                            less.append(sortedExamples.values[j][indexOfAttribute])
-                        # Get information gain with examples before splitting: current examples and subsets=[less,greater]
-                        e = self.getInformationGain(examples=[less,greater], target_attribute=target_attribute, attribute=attributes[indexOfAttribute],  classEntropy=self.getEntropy(examples,target_attribute))
-                        if e >= maxEnt:
-                            splitted = [less, greater]
-                            maxEnt = e
-                            bestAttribute = attributes[indexOfAttribute]
-                            bestThreshold = threshold
-        #return chosen best attribute, threshold of best attribute and splitted examples
-        return(bestAttribute, bestThreshold, splitted)
+            for index in range(0, len(sortedExamples)-1):
+                #Try all possible adindexacent pairs, choose the threshold that yields maximum gain
+                if sortedExamples[attribute][index] != sortedExamples[attribute][index+1]:
+                    tempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, index)
+                    classEntropy = self.getEntropy(tempExamples, target)
+                    gain = self.getInformationGain(tempExamples, target, attribute, classEntropy)
+                    if gain >= maxGain:
+                        maxGain = gain
+                        bestTempExamples = tempExamples
+            if self.areAllValuesSame(sortedExamples[target_attribute]):
+                bestTempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, len(sortedExamples[attribute])-1)
+        return bestTempExamples
 
-    def postPruning(overfitDecisionTree):
-        rule = traverse_tree(overfitDecisionTree.root)
+    # def postPruning(overfitDecisionTree):
+    #     pass
 
     # 1. Infer the decision tree from the training set, growing the tree until the training 
     #    data is fit as well as possible and allowing overfitting to occur. 
@@ -102,3 +93,10 @@ class myC45(myID3):
 
     #Preorder Traversal, getting rule each time it reaches a leaf
     # def parseTreeFromNode(node):
+
+df = pd.read_csv('../datasets/iris.csv', sep=',')
+attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+target = 'species'
+
+c45 = myC45(examples=df, target_attribute=target, attributes=attributes)
+c45.splitAttributes(df, target, attributes) 
