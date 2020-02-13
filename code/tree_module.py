@@ -1,4 +1,5 @@
 # https://stackoverflow.com/questions/2358045/how-can-i-implement-a-tree-in-python with some modifications
+import operator
 class Tree:
     def __init__(self, data, names=None, children=None):
         self.data = data
@@ -45,3 +46,20 @@ class Tree:
                 rules[count][self.data] = self.names[index]
                 count+=1
         return rules
+
+    def isLeafsParent(self):
+        for child in self.children:
+            if (len(child.children) > 0):
+                return False
+        return True
+
+    def prune(self):
+        counter = dict()
+        for child in self.children:
+            if (child.data in counter):
+                counter[child.data] += 1
+            else:
+                counter[child.data] = 1
+        if (counter != dict()):
+            self.data = max(counter.items(), key=operator.itemgetter(1))[0]
+            self.children = []

@@ -5,16 +5,6 @@ import numpy as np
 
 class myC45(myID3):
 
-    def thisIsHowToPrune():
-        df = pd.read_csv('../datasets/play_tennis.csv')
-        attributes = ["outlook", "temp", "humidity", "wind"]
-        target = 'play'
-        x = df.drop(target,axis=1)
-        y = df[target]
-        x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2)
-        print(x_train, x_test, y_train, y_test)
-
-
     def __init__(self, examples, target_attribute, attributes):
         self.contDictionary = {}
         # Handle missing values first
@@ -26,7 +16,7 @@ class myC45(myID3):
             if (correctExamples[attribute].dtype == np.float64 or correctExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
         
-        self.getThreshold(correctExamples, target_attribute, continuous_attributes)
+        self.splitAttributes(correctExamples, target_attribute, continuous_attributes)
                 
     def gainRatio(self, examples, target_attribute, attribute, classEntropy):
         gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
