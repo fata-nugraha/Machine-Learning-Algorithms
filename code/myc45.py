@@ -56,26 +56,13 @@ class myC45(myID3):
                             greater.append(sortedExamples.values[j][indexOfAttribute])
                         else:
                             less.append(sortedExamples.values[j][indexOfAttribute])
-                        # Find the entropy of examples
-                        e = getInformationGain(examples.values.tolist, [less, greater])
+                        # e = self.getInformationGain(currentAvailableExamples, [less, greater])
+                        e = self.getInformationGain(examples=[less,greater], target_attribute=attributes, attribute=attributes[indexOfAttribute],  classEntropy=getEntropy(examples,attributes[indexOfAttribute]))
                         if e >= maxEnt:
                             splitted = [less, greater]
                             maxEnt = e
-                            bestAttribute = attributes[index]
+                            bestAttribute = attributes[indexOfAttribute]
                             bestThreshold = threshold
         return(bestAttribute, bestThreshold, splitted)
-
-    def getInformationGain(unionSet, subsets):
-        S = len(unionSet)
-        #calculate impurity before split
-		impurityBeforeSplit = self.entropy(unionSet)
-		#calculate impurity after split
-		weights = [len(subset)/S for subset in subsets]
-		impurityAfterSplit = 0
-		for i in range(len(subsets)):
-			impurityAfterSplit += weights[i]*self.entropy(subsets[i])
-		#calculate total gain
-		totalGain = impurityBeforeSplit - impurityAfterSplit
-		return totalGain
 
 myC45.missingValues([1, 2, 3, None, 5, 6, 8, 6, 6, 6, 6])
