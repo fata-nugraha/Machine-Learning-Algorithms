@@ -1,6 +1,8 @@
 from collections import Counter
 from myid3 import *
 
+import copy
+
 import numpy as np
 
 class myC45(myID3):
@@ -38,18 +40,17 @@ class myC45(myID3):
 
     def changeContinuousAttributeValues(self, examples, attribute, thresholdIndex):
         tempExamples = examples
-        changedAttributes = []
-        if thresholdIndex == len(examples[attribute])-1 :
-            tempExamples[attribute][thresholdIndex] = " <= " + str(tempExamples[attribute][thresholdIndex]+0.5) 
-            changedAttributes.append(" <= " + str(tempExamples[attribute][thresholdIndex]+0.5))
+        if (thresholdIndex == len(examples[attribute])-1) :
+            newValue = tempExamples[attribute][thresholdIndex]+0.5
+            tempExamples[attribute][thresholdIndex] = ' <= ' + str(newValue)
         else:
-            for index in range(0, len(examples[attribute])):
+            for index in range(0, len(examples[attribute])-1):
                 if (index <= thresholdIndex): 
-                    tempExamples[attribute][index] = " <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
-                    changedAttributes.append(" <= " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
+                    tempExamples[attribute][index] = ' <= ' + str(newValue)
                 else:
-                    tempExamples[attribute][index] = " > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2)
-                    changedAttributes.append(" > " + str((tempExamples[attribute][thresholdIndex]+tempExamples[attribute][thresholdIndex+1])/2))
+                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
+                    tempExamples[attribute][index] = ' > ' + str(newValue)
         return tempExamples
 
     #splitAttributes for continuous variables
