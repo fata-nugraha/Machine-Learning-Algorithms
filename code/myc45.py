@@ -30,7 +30,7 @@ class myC45(myID3):
             for index in range (0, len(sortedExamples[target_value])):
                 if (sortedExamples[target_value][0] != target_value):
                     tresholdArr.append(index)
-                    
+
             tresholdArr.append(len(sortedExamples[target_value]) - 1)
                 
 
@@ -46,6 +46,10 @@ class myC45(myID3):
             value = classFreqRatios.keys()[index]
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
+    def missingValues(df):
+        for data in df:
+            df[data] = df[data].fillna(df[data].mode()[0])
+        return df
     
     def handleMissingValues(hollowArray):
         # counter = Counter(hollowArray)
