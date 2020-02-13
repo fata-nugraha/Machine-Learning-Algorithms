@@ -20,6 +20,7 @@ class myC45(myID3):
         for attribute in attributes:
             if (handledExamples[attribute].dtype == np.float64 or handledExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
+        print(continuous_attributes)
         
         bestTempExamples = self.splitAttributes(handledExamples, target_attribute, continuous_attributes)
 
@@ -32,20 +33,10 @@ class myC45(myID3):
         test[target_attribute] = y_test
         train = train.reset_index(drop=True)
 
-        self.id3 = myID3(train, target_attribute, continuous_attributes)
+        self.id3 = myID3(train, target_attribute, attributes)
         
-        #initialize tree
-        tree = self.id3.tree_
-
         #prune tree
-        result = self.multiprune(tree, test, target_attribute, continuous_attributes)
-        if result != []:
-            #print pruned tree
-            result[0].export_tree()
-        else:
-            tree.export_tree()
-            #print tree awal
-            # print(self.accuracy(tree, test, target_attribute, continuous_attributes))
+        self.prunedTree_ = self.multiprune(self.id3.tree_, test, target_attribute, attributes)
 
     #separate the trained data and the test data
     def separateTrainedData(self, examples, target):
@@ -66,7 +57,6 @@ class myC45(myID3):
         for r in range(len(rules)):
             for i in range(len(testcopy)):
                 check = True
-                output = False
                 for attribute in attributes:
                     try:
                         check = testcopy.iloc[i][attribute] == rules[r][attribute] and check
@@ -75,15 +65,8 @@ class myC45(myID3):
                 if (check):
                     output = testcopy.iloc[i][target_attribute] == rules[r]['class']
                     point -=1
-                if (output):
-                    point += 5
-            # if (checker>0):
-            # 	rules[r]['accuracy'] = accuracy/checker
-            # else:
-            # 	rules[r]['accuracy'] = 0.01
-        # rules = sorted(rules, key = lambda i: i['accuracy'], reverse = True)
-        # for rule in rules:
-            # print(rule)
+                    if (output):
+                        point += 5
         return point
     
     def multiprune(self, tree, test, target_attribute, attributes):
@@ -105,7 +88,7 @@ class myC45(myID3):
     def getSplitInformation(self, examples, target_attribute, attribute):
         classFreqRatios = examples[attribute].value_counts(normalize=True)
         splitInformation = 0
-        for index in range (0, len(classFreqRatios)):
+        for index in range (len(classFreqRatios)):
             value = classFreqRatios.keys()[index]
             splitInformation -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
         return splitInformation
@@ -131,7 +114,7 @@ class myC45(myID3):
             # print(attribute)
             sortedExamples = bestTempExamples.sort_values(attribute)
             #For all the example
-            for index in range(0, len(sortedExamples)-1):
+            for index in range(len(sortedExamples)-1):
                 #Try all possible adjacent pairs, choose the threshold that yields maximum gain
                 if sortedExamples[attribute][index] != sortedExamples[attribute][index+1]:
                     tempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, sortedExamples[attribute][index])

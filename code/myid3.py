@@ -4,6 +4,12 @@ import copy
 from tree_module import *
 import math
 
+def log(x):
+    if x == 0:
+        return 0
+    else:
+        return math.log(x,2)
+
 class myID3:
     # EXAMPLES IS THE DATA!!!!
     def __init__(self, examples, target_attribute, attributes):
@@ -14,22 +20,18 @@ class myID3:
             return
 
         if (len(attributes) == 0):
-            # Check for most values
-            # data adalah nilai yang muncul terbanyak dalam suatu kelas (kelas adalah atribut / kolom)
+            # Check for most values, data adalah nilai yang muncul terbanyak dalam suatu kelas (kelas adalah atribut / kolom)
             data = examples[target_attribute].value_counts().idxmax()
             self.tree_ = Tree(data)
             return
 
-        # Use information gain to get best attr
-        # this function just give best attr, just believe
+        # Use information gain to get best attr, this function just give best attr, just believe
         bestAttribute = self.getBestAttribute(examples, target_attribute, attributes)
 
-        # Get unique values in the attribute
-        # remove duplicates in the attribute
+        # Get unique values in the attribute, remove duplicates in the attribute
         uniqueValues = examples[bestAttribute].unique()
 
-        # Assign new attributes
-        # all attributes without the best attribute
+        # Assign new attributes, all attributes without the best attribute
         filteredAttributes = copy.copy(attributes)
         filteredAttributes.remove(bestAttribute)
 
@@ -42,8 +44,7 @@ class myID3:
 
             # If filteredExamples empty
             if (filteredExamples.empty):
-                # Assign with most common value...
-                # data adalah nilai yang muncul terbanyak dalam suatu kelas (kelas adalah atribut / kolom)
+                # Assign with most common value..., data adalah nilai yang muncul terbanyak dalam suatu kelas (kelas adalah atribut / kolom)
                 data = examples[target_attribute].value_counts().idxmax()
                 self.tree_.add_child(data)
                 self.tree_.add_name(value)
@@ -75,13 +76,11 @@ class myID3:
     def getInformationGain(self, examples, target_attribute, attribute, classEntropy):
         # persentase setiap atribut dibanding total populasi
         classFreqRatios = examples[attribute].value_counts(normalize=True)
-
         # For each class, find gain
         gain = classEntropy
         for index in range (0, len(classFreqRatios)):
             value = classFreqRatios.keys()[index]
             gain -= classFreqRatios[value] * self.getAttributeEntropy(examples, target_attribute, attribute, value)
-        
         return gain
 
     def getAttributeEntropy(self, examples, target_attribute, attribute, value):
@@ -92,14 +91,11 @@ class myID3:
         return self.getEntropy(filteredExamples, target_attribute)
 
     def getEntropy(self, examples, target_attribute):
-        # Find class frequency
-        # persentase setiap atribut dibanding total populasi
+        # Find class frequency, persentase setiap atribut dibanding total populasi
         classFreqRatios = examples[target_attribute].value_counts(normalize=True)
-
         entropy = 0
         for classFreqRatio in classFreqRatios:
-            entropy -= classFreqRatio * self.log(classFreqRatio)
-
+            entropy -= classFreqRatio * log(classFreqRatio)
         return entropy
 
     def areAllValuesSame (self, data):
@@ -107,8 +103,4 @@ class myID3:
         copy = copy.reset_index(drop=True)
         return all(elem == copy[0] for elem in copy)
 
-    def log(self, x):
-        if x == 0:
-            return 0
-        else:
-            return math.log(x,2)
+    
