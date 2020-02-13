@@ -8,18 +8,19 @@ import numpy as np
 
 from tree_module import *
 from myid3 import *
+from myc45 import *
 import math
 import copy
 
 pd.options.mode.chained_assignment = None
-# df = pd.read_csv('../datasets/iris.csv', sep=',')
-# attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
-# target = 'species'
+df = pd.read_csv('../datasets/iris.csv', sep=',')
+attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+target = 'species'
 # -------------------------------------------------------------
-df = pd.read_csv('../datasets/play_tennis.csv')
-df = df.drop('day', axis=1)
-attributes = ["outlook", "temp", "humidity", "wind"]
-target = 'play'
+# df = pd.read_csv('../datasets/play_tennis.csv')
+# df = df.drop('day', axis=1)
+# attributes = ["outlook", "temp", "humidity", "wind"]
+# target = 'play'
 x = df.drop(target,axis=1)
 y = df[target]
 x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3)
@@ -27,6 +28,8 @@ train = x_train
 train[target] = y_train
 test = x_test
 test[target] = y_test
+train = train.reset_index(drop=True)
+
 
 def acc(tree, test):
 	rules = tree.getRules()
@@ -68,8 +71,8 @@ def multiprune(tree, test):
 
 
 
-id3 = myID3(train, target, attributes)
-tree = id3.tree_
+c45 = myC45(train, target, attributes)
+tree = c45.id3.tree_
 print("INI TREE AWAL")
 tree.export_tree()
 print(acc(tree, test))

@@ -1,24 +1,28 @@
 from collections import Counter
 from myid3 import *
 
-import copy
+from copy import copy
 
 import numpy as np
+pd.options.mode.chained_assignment = None
+
 
 class myC45(myID3):
 
     def __init__(self, examples, target_attribute, attributes):
         self.contDictionary = {}
         # Handle missing values first
-        correctExamples = self.handleMissingValues(examples)
+        handledExamples = self.handleMissingValues(examples)
 
         continuous_attributes = []
         # Classify continuous and discrete values
         for attribute in attributes:
-            if (correctExamples[attribute].dtype == np.float64 or correctExamples[attribute].dtype == np.int64):
+            if (handledExamples[attribute].dtype == np.float64 or handledExamples[attribute].dtype == np.int64):
                 continuous_attributes.append(attribute)
+        print(continuous_attributes)
         
-        self.splitAttributes(correctExamples, target_attribute, continuous_attributes)
+        bestTempExamples = self.splitAttributes(handledExamples, target_attribute, continuous_attributes)
+        self.id3 = myID3(bestTempExamples, target_attribute, attributes)
                 
     def gainRatio(self, examples, target_attribute, attribute, classEntropy):
         gain = self.getInformationGain(examples, target_attribute, returnAttr, classEntropy)
@@ -38,19 +42,10 @@ class myC45(myID3):
             df[data] = df[data].fillna(df[data].mode()[0])
         return df
 
-    def changeContinuousAttributeValues(self, examples, attribute, thresholdIndex):
-        tempExamples = examples
-        if (thresholdIndex == len(examples[attribute])-1) :
-            newValue = tempExamples[attribute][thresholdIndex]+0.5
-            tempExamples[attribute][thresholdIndex] = ' <= ' + str(newValue)
-        else:
-            for index in range(0, len(examples[attribute])-1):
-                if (index <= thresholdIndex): 
-                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
-                    tempExamples[attribute][index] = ' <= ' + str(newValue)
-                else:
-                    newValue = (tempExamples[attribute][index]+tempExamples[attribute][index+1])/2
-                    tempExamples[attribute][index] = ' > ' + str(newValue)
+    def changeContinuousAttributeValues(self, examples, attribute, threshold):
+        tempExamples = copy(examples)
+        for index in range(len(examples[attribute])):
+            tempExamples[attribute][index] = ' <= ' + str(threshold) if tempExamples[attribute][index] <= threshold else ' > ' + str(threshold)
         return tempExamples
 
     #splitAttributes for continuous variables
@@ -60,24 +55,23 @@ class myC45(myID3):
     ## 3. Then try all possible adjacent pairs. 
     ## 4. Choose the threshold that yields maximum gain
     def splitAttributes(self, examples, target_attribute, attributes):
-        maxGain = -1*float("inf")
+        bestTempExamples = examples
         #For all attributes, keeping its index
         for attribute in attributes:
+            maxGain = -1*float("inf")
             #Sort data according to the column
-            sortedExamples = df.sort_values(attribute)
-            # print(sortedExamples)
+            print(attribute)
+            sortedExamples = bestTempExamples.sort_values(attribute)
             #For all the example
             for index in range(0, len(sortedExamples)-1):
-                #Try all possible adindexacent pairs, choose the threshold that yields maximum gain
+                #Try all possible adjacent pairs, choose the threshold that yields maximum gain
                 if sortedExamples[attribute][index] != sortedExamples[attribute][index+1]:
-                    tempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, index)
-                    classEntropy = self.getEntropy(tempExamples, target)
-                    gain = self.getInformationGain(tempExamples, target, attribute, classEntropy)
+                    tempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, sortedExamples[attribute][index])
+                    classEntropy = self.getEntropy(tempExamples, target_attribute)
+                    gain = self.getInformationGain(tempExamples, target_attribute, attribute, classEntropy)
                     if gain >= maxGain:
                         maxGain = gain
-                        bestTempExamples = tempExamples
-            if self.areAllValuesSame(sortedExamples[target_attribute]):
-                bestTempExamples = self.changeContinuousAttributeValues(sortedExamples, attribute, len(sortedExamples[attribute])-1)
+                        bestTempExamples = copy(tempExamples)
         return bestTempExamples
 
     # def postPruning(overfitDecisionTree):
@@ -94,10 +88,3 @@ class myC45(myID3):
 
     #Preorder Traversal, getting rule each time it reaches a leaf
     # def parseTreeFromNode(node):
-
-df = pd.read_csv('../datasets/iris.csv', sep=',')
-attributes = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
-target = 'species'
-
-c45 = myC45(examples=df, target_attribute=target, attributes=attributes)
-c45.splitAttributes(df, target, attributes) 
