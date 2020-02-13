@@ -33,20 +33,22 @@ class myC45(myID3):
         print(hollowArray)
 
     #splitAttributes for continuous variables
-    def splitAttributes(self, examples, attributes):
+    # idea:
+    ## 1. For all attributes:
+    ## 2. sort the data according to the column.
+    ## 3. Then try all possible adjacent pairs. 
+    ## 4. Choose the attribute that yields maximum gain
+    def splitAttributes(self, examples, target_attribute, attributes):
         splitted = []
         maxEnt = -1*float("inf")
         bestAttribute = -1
-        #sort the data according to the column.Then try all 
-		#possible adjacent pairs. Choose the one that 
-		#yields maximum gain
-        #examples is dataframe, examples.loc[0] is attribute+value, examples.loc[0][0] is value of 1st attribute
+        #For all attributes, keeping its index
         for indexOfAttribute in range(0, len(attributes)):
-            # indexOfAttribute = examples.attribute.index(attribute)
-            # examples.sort_values([attribute],inplace=True) 
+            #Sort data according to the column
             sortedExamples = examples.sort_values(attributes[indexOfAttribute],inplace=True)
+            #For all the example
             for j in range(0, len(sortedExamples) - 1):
-                #if value of example[attribute][n] != value of example[attribute][n+1]
+                #Try all possible adjacent pairs, choose the attribute that yields maximum gain
                 if sortedExamples.values[j][indexOfAttribute] != sortedExamples.values[j+1][indexOfAttribute]:
                     threshold = sortedExamples.values[j][indexOfAttribute] + sortedExamples.values[j+1][indexOfAttribute]/2
                     less = []
@@ -56,13 +58,30 @@ class myC45(myID3):
                             greater.append(sortedExamples.values[j][indexOfAttribute])
                         else:
                             less.append(sortedExamples.values[j][indexOfAttribute])
-                        # Get information gain with unionset of current examples and subsets=[less,greater]
-                        e = self.getInformationGain(examples=[less,greater], target_attribute=attributes, attribute=attributes[indexOfAttribute],  classEntropy=self.getEntropy(examples,attributes[indexOfAttribute]))
+                        # Get information gain with examples before splitting: current examples and subsets=[less,greater]
+                        e = self.getInformationGain(examples=[less,greater], target_attribute=target_attribute, attribute=attributes[indexOfAttribute],  classEntropy=self.getEntropy(examples,target_attribute))
                         if e >= maxEnt:
                             splitted = [less, greater]
                             maxEnt = e
                             bestAttribute = attributes[indexOfAttribute]
                             bestThreshold = threshold
+        #return chosen best attribute, threshold of best attribute and splitted examples
         return(bestAttribute, bestThreshold, splitted)
+
+    def postPruning(overfitDecisionTree):
+        rule = traverse_tree(overfitDecisionTree.root)
+
+    # 1. Infer the decision tree from the training set, growing the tree until the training 
+    #    data is fit as well as possible and allowing overfitting to occur. 
+    # 2. Convert the learned tree into an equivalent set of rules by creating one rule
+    #    for each path from the root node to a leaf node. 
+    # 3. Prune (generalize) each rule by removing any preconditions that result in
+    #    improving its estimated accuracy
+    # 4. Sort the pruned rules by their estimated accuracy, and consider them in this
+    #    sequence when classifying subsequent instances. 
+
+    #Preorder Traversal, getting rule each time it reaches a leaf
+    def parseTreeFromNode(node):
+
 
 myC45.missingValues([1, 2, 3, None, 5, 6, 8, 6, 6, 6, 6])
