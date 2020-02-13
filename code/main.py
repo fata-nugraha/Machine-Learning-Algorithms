@@ -51,6 +51,7 @@ testcopy = test
 testcopy = testcopy.reset_index(drop=True)
 for r in range(len(rules)):
 	accuracy = 0
+	checker = 0
 	for i in range(len(testcopy)):
 		check = True
 		for attribute in attributes:
@@ -58,10 +59,12 @@ for r in range(len(rules)):
 				check = testcopy.iloc[i][attribute] == rules[r][attribute] and check
 			except Exception as e:
 				pass
-		output = not (testcopy.iloc[i][target] != rules[r]['class'] and check)
+		if (check):
+			output = not (testcopy.iloc[i][target] != rules[r]['class'])
+			checker +=1
 		if (output):
 			accuracy += 1
-	rules[r]['accuracy'] = accuracy/len(testcopy)
+	rules[r]['accuracy'] = accuracy/checker
 sorted(rules, key = lambda i: i['accuracy'], reverse = True)
 for rule in rules:
 	print(rule)
