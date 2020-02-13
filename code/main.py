@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 from tree_module import *
-from myID3 import *
+from myid3 import *
 import math
 
 pd.options.mode.chained_assignment = None
